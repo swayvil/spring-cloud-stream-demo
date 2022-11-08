@@ -1,0 +1,40 @@
+spring:
+  cloud:
+    function:
+      definition: myConsumer;mySupplier
+    stream:
+      poller:
+        fixed-delay: 5000
+      bindings:
+        myConsumer-in-0:
+          destination: 'spring/*/stream'
+          group: nonexclusive
+          consumer:
+            concurrency: 2
+        mySupplier-out-0:
+          destination: spring/cloud/stream
+      solace:
+        bindings:
+          myConsumer-in-0:
+            consumer:
+              queue-access-type: 0 #1 is Exclusive; 0 is Non-Exclusive (and default)
+              queueAdditionalSubscriptions:
+                - 'a/b/>'
+                - 'pub/*/plus'
+      binders:
+        solace:
+          type: solace
+          environment:
+            solace:
+              java:
+                host: tcps://xxx.messaging.solace.cloud:55443
+                msgVpn: xxx
+                clientUsername: solace-cloud-client
+                clientPassword: xxx
+                connectRetries: 3
+                connectRetriesPerHost: 0
+                reconnectRetries: 3
+                apiProperties:
+                  SSL_VALIDATE_CERTIFICATE: true
+                  SSL_TRUST_STORE: /tmp/certs/xxx-truststore.jks
+                  SSL_TRUST_STORE_PASSWORD: xxx
